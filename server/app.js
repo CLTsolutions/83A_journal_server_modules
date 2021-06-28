@@ -4,12 +4,12 @@ const Express = require('express')
 // Allows us to create an Express app.
 const app = Express()
 
-// // res.send is an Express fn
-// // res (response) handles packaging the response obj
-// // .send() method's job is to send off the response
-// app.use('/test', (req, res) => {
-//   res.send('This is a message from the test endpoint on the server!')
-// })
+// res.send is an Express fn
+// res (response) handles packaging the response obj
+// .send() method's job is to send off the response
+app.use('/test', (req, res) => {
+  res.send('This is a message from the test endpoint on the server!')
+})
 
 // importing the controllers as a bundle through the obj we exported in the index.js file
 // - it's being stored it in a variable called controllers
