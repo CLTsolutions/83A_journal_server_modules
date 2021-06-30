@@ -1,3 +1,5 @@
+// When require ('dependency') such as on line 1,
+// - we are importing and accessing dependencies installed in the project
 require('dotenv').config()
 // app.js is the entrance into this application
 // If a file or piece of logic is not connected by one import/export, the app cannot access or run the logic
@@ -25,6 +27,7 @@ const controllers = require('./controllers')
 // for the second param, the use() fn, we pass in the controllers obj and use dot notation
 // - to access the desired journalController
 app.use('/journal', controllers.journalController)
+app.use('/user', controllers.userController)
 
 // app.listen(3000, () => {
 //   console.log(`[Server]: App is listening on 3000.`)

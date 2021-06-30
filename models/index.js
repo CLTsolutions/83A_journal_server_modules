@@ -2,4 +2,4 @@
 // - they are then exported in a single object.
 const UserModel = require('./user')
 
-module.exports = { userModel }
+module.exports = { UserModel }
