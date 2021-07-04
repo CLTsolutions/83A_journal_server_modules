@@ -5,6 +5,6 @@
 // exporting this file as a module
 module.exports = {
   // define a prop called journalController (value of this prop is the import of the journalController file)
-  userController: require('./usercontroller'),
-  journalController: require('./journalcontroller'),
+  userController: require('./userController'),
+  journalController: require('./journalController'),
 }

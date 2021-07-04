@@ -22,6 +22,12 @@ const db = require('./db')
 // - it's being stored it in a variable called controllers
 const controllers = require('./controllers')
 
+// this allows us to use the req.body middleware
+// - Express needs to jsonify the request and parse and interpret the body of data sent through req
+// app.use MUST got above any routes (routes above won't have access to this statement)
+// this tells the app we want json to be used as we process this req
+app.use(Express.json())
+
 // calling app.use and using base url /journal as the first param
 // base URL is now http://localhost:3000/journal
 // for the second param, the use() fn, we pass in the controllers obj and use dot notation
@@ -36,7 +42,7 @@ app.use('/user', controllers.userController)
 // authenticate method returns a promise
 db.authenticate()
   .then(() => db.sync()) // method ensures all defined models are synced to db
-  // .then(() => db.sync({ force: true }))
+  // .then(() => db.sync({ force: true })) // to drop tables
   // promise resolver to access the returned promise from sync() and fire off the fn showing if we are connected
   .then(() => {
     app.listen(
