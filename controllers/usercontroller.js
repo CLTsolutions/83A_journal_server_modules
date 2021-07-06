@@ -5,6 +5,8 @@ const router = require('express').Router()
 const { UniqueConstraintError } = require('sequelize/lib/errors')
 // using obj destructuring to import the user model and store it in 'userModel' variable.
 const { UserModel } = require('../models')
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
 
 /*************
  * REGISTER *
@@ -28,14 +30,32 @@ router.post('/register', async (req, res) => {
   try {
     const User = await UserModel.create({
       email,
-      password,
+      // want pw to be encrypted as we create the user
+      // hashSync() takes 2 args (a string, string or num)
+      password: bcrypt.hashSync(password, 13),
     })
+
+    // creating token variable
+    // calling upon jwt variable
+    // jwt dependency comes with a few methods - we are using .sign() to create the token
+    // - .sign() takes 2 params: the payload and signature
+    // -- payload is the data we're sending (User variable created above)
+    // -- signature helps to encode and decode the token
+    // never store sensitive info inside JSONWebTokens (like email)
+    let token = jwt.sign(
+      { id: User.id, password: bcrypt.hashSync(password, 13) },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: 60 * 60 * 24,
+      }
+    )
     // .status allows us to add a status code to a res
     // res.json and res.send nearly identical except .json can convert non objs into valid json (null/undefined)
     res.status(201).json({
       message: 'User created successfully.',
       // User data (above) is being sent to client and stored in 'user' property. 'user' is key, 'User' is value.
       user: User,
+      sessionToken: token,
     })
   } catch (err) {
     // in case there is a SequelizeUniqueConstraintError
@@ -69,10 +89,28 @@ router.post('/login', async (req, res) => {
     // checking if res is true or false
     // null is not an err, but it does have a falsy value
     if (loginUser) {
-      res.status(200).json({
-        message: 'Login successful.',
-        user: loginUser,
-      })
+      let passwordComparison = await bcrypt.compare(
+        password,
+        loginUser.password
+      )
+
+      if (passwordComparison) {
+        let token = jwt.sign({ id: loginUser.id }, process.env.JWT_SECRET, {
+          expiresIn: 60 * 60 * 24,
+        })
+        res.status(200).json({
+          message: 'Login successful.',
+          user: loginUser,
+          sessionToken: token,
+        })
+        // using 401 because both errs below happen due to info rec'd from the client not matching the info in the db
+        // best practice so potential hacker isn't alerted they have the correct email but wrong pw
+        // - handling errs this way ensures user security
+      } else {
+        res.status(401).json({
+          message: 'Incorrect email or password',
+        })
+      }
     } else {
       res.status(401).json({ message: 'Login failed. User not found.' })
     }
