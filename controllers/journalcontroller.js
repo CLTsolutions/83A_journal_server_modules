@@ -5,13 +5,16 @@ const Express = require('express')
 // - therefore we call Express.Router() - using Express variable to access the Router() method
 // Router method returns a router obj
 const router = Express.Router()
+// placing validateJWT here instead of in app.js is best if only a specific number of routes needs to be restricted
+let validateJWT = require('../middleware/validate-jwt')
 
 // use router obj by using router variable to gain access to the Router() obj methods
 // - get() is one of the methods in the obj and is called here.
 // -- get () allows us to complete a HTTP GET req (.get takes 2 args)
 // --- first arg is the path and second is an anon callback fn (aka handler fn))
 // ----- this fn gets called when app receives req to specified route and HTTP method.
-router.get('/practice', (req, res) => {
+// validateJWT checks if incoming req has a token for this route
+router.get('/practice', validateJWT, (req, res) => {
   res.send('Hey! Practice route!') // .send() is an Express method that can call on the res obj
 })
 

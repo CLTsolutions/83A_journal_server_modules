@@ -28,12 +28,17 @@ const controllers = require('./controllers')
 // this tells the app we want json to be used as we process this req
 app.use(Express.json())
 
+app.use('/user', controllers.userController)
+
+// anything beneath this middleware line will require a token to access (thus becoming protected)
+// - best if we have multiple controllers where ALL THE ROUTES need to be restricted
+// app.use(require('./middleware/validate-jwt')) ******************
+
 // calling app.use and using base url /journal as the first param
 // base URL is now http://localhost:3000/journal
 // for the second param, the use() fn, we pass in the controllers obj and use dot notation
 // - to access the desired journalController
 app.use('/journal', controllers.journalController)
-app.use('/user', controllers.userController)
 
 // app.listen(3000, () => {
 //   console.log(`[Server]: App is listening on 3000.`)
