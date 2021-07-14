@@ -6,7 +6,7 @@
 
 // interacting with the token assigned to each session ( when user logins/signs up)
 // - so needs to import JWT package.
-const jwt = reequire('jsonwebtoken')
+const jwt = require('jsonwebtoken')
 // to get more info about specific user, will need to communicate with user model in db.
 const { UserModel } = require('../models')
 
@@ -27,6 +27,7 @@ const validateJWT = async (req, res, next) => {
   ) {
     // using obj deconstruction to pull the value of the authorization header and store it in authorization variable
     const { authorization } = req.headers
+    // console.log('authorization -->', authorization)
     // prettier-ignore
     const payload = authorization
       // this ternary verifies the token if authorization contains a truthy value and stores it in payload variable
@@ -37,19 +38,21 @@ const validateJWT = async (req, res, next) => {
       ? jwt.verify(
           // if token includes 'Bearer' we extrapolate and rtn just the token from the whole string
           authorization.includes('Bearer')
-            ? authorization.split('')[1]
-            : // if 'Bearer' not included, just return token
-              authorization,
+            ? authorization.split(' ')[1]
+            : authorization, // if 'Bearer' not included, just return token
           process.env.JWT_SECRET
         )
       : undefined
+    // console.log('payload -->', payload)
     // checking truthy value in the payload
     if (payload) {
       // if payload is truthy, use Sequelize's 'findOne' method to look for user in UserModel where the ID in db matches ID in token.
       // - value is stored in variable called foundUser
       let foundUser = await UserModel.findOne({ where: { id: payload.id } })
+      // console.log('foundUser -->', foundUser)
 
       if (foundUser) {
+        // console.log('request -->', req)
         // if foundUser is truthy, create a new property called user to express's request obj
         // value of new property user is the info stored in foundUser above (email and pw of user)
         // - now have access to this info when big middleware fn gets invoked.
