@@ -7,6 +7,7 @@ const Express = require('express')
 const router = Express.Router()
 // placing validateJWT here instead of in app.js is best if only a specific number of routes needs to be restricted
 let validateJWT = require('../middleware/validate-jwt')
+const { JournalModel } = require('../models')
 
 // use router obj by using router variable to gain access to the Router() obj methods
 // - get() is one of the methods in the obj and is called here.
@@ -16,6 +17,21 @@ let validateJWT = require('../middleware/validate-jwt')
 // validateJWT checks if incoming req has a token for this route
 router.get('/practice', validateJWT, (req, res) => {
   res.send('Hey! Practice route!') // .send() is an Express method that can call on the res obj
+})
+
+/*=================
+* journal CREATE *
+==================*/
+router.post('/create', validateJWT, async (req, rest) => {
+  const { title, date, entry } = req.body.journal
+  const { id } = req.user
+  const journalEntry = { title, date, entry, owner: id }
+  try {
+    const newJournal = await JournalModel.create(journalEntry)
+    rest.status(200).json(newJournal)
+  } catch (err) {
+    res.status(500).json({ error: err })
+  }
 })
 
 router.get('/about', (req, res) => {
