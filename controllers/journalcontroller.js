@@ -42,13 +42,6 @@ router.post('/create', validateJWT, async (req, res) => {
   }
 })
 
-router.get('/about', (req, res) => {
-  res.send('Hey! About route!') // .send() is an Express method that can call on the res obj
-})
-
-// exporting for outside use of the file
-module.exports = router
-
 /*=================
 * journal GET ALL *
 ==================*/
@@ -62,3 +55,31 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: err })
   }
 })
+
+/*==========================
+* journal GET ALL BY USER *
+============================*/
+router.get('/mine', validateJWT, async (req, res) => {
+  // user who sends req
+  // digging into user obj within req obj and accessing user's id.
+  const { id } = req.user
+  try {
+    // sequelize lets us use the 'where' attribute to specify specific items from the db
+    // want to look in thw owner column in the db and find journal entries that correlate with specific user id
+    // - extracted using the validateSession middleware fn.
+    const userJournals = await JournalModel.findAll({ where: { owner: id } })
+    // ternary is not in modules
+    userJournals.length === 0
+      ? res.status(404).json({ message: 'No entries found' })
+      : res.status(200).json(userJournals)
+  } catch (err) {
+    res.status(500).json({ error: err })
+  }
+})
+
+router.get('/about', (req, res) => {
+  res.send('Hey! About route!') // .send() is an Express method that can call on the res obj
+})
+
+// exporting for outside use of the file
+module.exports = router
