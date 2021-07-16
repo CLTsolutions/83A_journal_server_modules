@@ -1,6 +1,7 @@
 // importing Express framework and storing it inside variable 'Express'
 // this instance becomes our gateway to using Express methods
 const Express = require('express')
+const { restart } = require('nodemon')
 // can access express props and methods by calling express.methodName()
 // - therefore we call Express.Router() - using Express variable to access the Router() method
 // Router method returns a router obj
@@ -22,13 +23,20 @@ router.get('/practice', validateJWT, (req, res) => {
 /*=================
 * journal CREATE *
 ==================*/
-router.post('/create', validateJWT, async (req, rest) => {
+// using router obj to access the .post()
+// /create is a subroute
+router.post('/create', validateJWT, async (req, res) => {
   const { title, date, entry } = req.body.journal
+  // this is coming from validateJWT (user obj we created in validateSession.js).
+  // - we can grab user's id and assign it to a specific journal entry
   const { id } = req.user
+  // this accesses model we are using
   const journalEntry = { title, date, entry, owner: id }
   try {
+    // .create() is a sequelize method allowing us to crete an instance of the Journal model
+    // - and sending the journalEntry obj to the db as long as it matches the model.
     const newJournal = await JournalModel.create(journalEntry)
-    rest.status(200).json(newJournal)
+    res.status(200).json(newJournal)
   } catch (err) {
     res.status(500).json({ error: err })
   }
@@ -40,3 +48,17 @@ router.get('/about', (req, res) => {
 
 // exporting for outside use of the file
 module.exports = router
+
+/*=================
+* journal GET ALL *
+==================*/
+router.get('/', async (req, res) => {
+  try {
+    // findAll() finds all items inside the journal table in our db
+    // - this method rtns a promise which we await
+    const entries = await JournalModel.findAll()
+    res.status(200).json(entries)
+  } catch (err) {
+    res.status(500).json({ error: err })
+  }
+})
