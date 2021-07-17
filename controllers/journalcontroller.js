@@ -77,6 +77,34 @@ router.get('/mine', validateJWT, async (req, res) => {
   }
 })
 
+/*=======================
+* journal GET BY TITLE *
+=========================*/
+// /:title is a dynamic route
+// substitute /:title with word or title correlated with a journal entry
+router.get('/:title', async (req, res) => {
+  // grabbing params obj found in request obj
+  // - from here we can access the values passed into the url's parameter
+  const { title } = req.params
+  try {
+    // finding journal's title in title column of db
+    // - find's specific title extrapolated from url's parameters
+    const results = await JournalModel.findAll({ where: { title: title } })
+    // ternary not in modules
+    results.length === 0
+      ? res.status(404).json({ message: 'No entries found' })
+      : res.status(200).json(userJournals)
+  } catch (err) {
+    res.status(500).json({ error: err })
+  }
+})
+
+router.get('/about', (req, res) => {
+  res.send('Hey! About route!') // .send() is an Express method that can call on the res obj
+})
+
+// exporting for outside use of the file
+
 router.get('/about', (req, res) => {
   res.send('Hey! About route!') // .send() is an Express method that can call on the res obj
 })
