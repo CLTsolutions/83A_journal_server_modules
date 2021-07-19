@@ -1,7 +1,6 @@
 // importing Express framework and storing it inside variable 'Express'
 // this instance becomes our gateway to using Express methods
 const Express = require('express')
-const { restart } = require('nodemon')
 // can access express props and methods by calling express.methodName()
 // - therefore we call Express.Router() - using Express variable to access the Router() method
 // Router method returns a router obj
@@ -160,15 +159,13 @@ router.delete('/delete/:id', validateJWT, async (req, res) => {
   }
 })
 
-router.get('/about', (req, res) => {
-  res.send('Hey! About route!') // .send() is an Express method that can call on the res obj
-})
+// router.get('/about', (req, res) => {
+//   res.send('Hey! About route!') // .send() is an Express method that can call on the res obj
+// })
 
-// exporting for outside use of the file
-
-router.get('/about', (req, res) => {
-  res.send('Hey! About route!') // .send() is an Express method that can call on the res obj
-})
+// router.get('/about', (req, res) => {
+//   res.send('Hey! About route!') // .send() is an Express method that can call on the res obj
+// })
 
 // exporting for outside use of the file
 module.exports = router
