@@ -93,7 +93,68 @@ router.get('/:title', async (req, res) => {
     // ternary not in modules
     results.length === 0
       ? res.status(404).json({ message: 'No entries found' })
-      : res.status(200).json(userJournals)
+      : res.status(200).json(results)
+  } catch (err) {
+    res.status(500).json({ error: err })
+  }
+})
+
+/*=================
+* journal UPDATE *
+===================*/
+// PUT replaces whatever is already there with what we give it (update)
+router.put('/update/:entryId', validateJWT, async (req, res) => {
+  const { title, date, entry } = req.body.journal
+  const journalId = req.params.entryId
+  const userId = req.user.id
+
+  const query = { where: { id: journalId, owner: userId } }
+
+  const updatedJournal = {
+    title: title,
+    date: date,
+    entry: entry,
+  }
+
+  try {
+    // update is sequelize method that takes two args
+    // - 1st arg contains obj of the new value we want to edit in the db
+    // - 2ns arg tells Sequelize where to place the new data if a match is found (query we crafted above)
+    const update = await JournalModel.update(updatedJournal, query)
+    // ternary not in modules
+    update[0] === 0
+      ? res.status(404).json({ message: 'No entries found.' })
+      : res
+          .status(200)
+          // using 'updatedJournal' instead of 'update' so I can see what has been updated
+          .json({ message: 'Your entry has been updated.', updatedJournal })
+    // res.status(200).json(update)
+  } catch (err) {
+    res.status(500).json({ error: err })
+  }
+})
+
+/*=================
+* journal DELETE *
+===================*/
+// When delete req is received, controller looks for matching fn
+// :id allows url param to be passed through the URL to the server so we can specify what to delete
+router.delete('/delete/:id', validateJWT, async (req, res) => {
+  const userId = req.user.id
+  const journalId = req.params.id
+
+  try {
+    const query = { where: { id: journalId, owner: userId } }
+    // destroy is Sequelize method to remove an item from the db
+    // tell Sequelize what to look for in trying to find item to delete
+    // modules did not set await JournalModel to a variable
+    const result = await JournalModel.destroy(query)
+    // ternary not in modules
+    query[0] === 0
+      ? res.status(404).json({ message: 'No entries found.' })
+      : res
+          .status(200)
+          .json({ message: 'Your entry has been deleted.', result })
   } catch (err) {
     res.status(500).json({ error: err })
   }
