@@ -10,6 +10,13 @@ const Express = require('express')
 const app = Express()
 const db = require('./db')
 
+/*
+- Keep in mind the order here.
+- - The file will be read sequentially, meaning the headers must come before the routes are declared.
+- it also needs to be high enough in the order of the file being read to pass the value of "Content-Type" into Express.json().
+*/
+app.use(require('./middleware/headers'))
+
 // When the route is requested, Express finds the method for the specific route.
 // res.send is an Express fn
 // res (response) handles packaging the response obj
