@@ -67,10 +67,7 @@ router.get('/mine', validateJWT, async (req, res) => {
     // want to look in thw owner column in the db and find journal entries that correlate with specific user id
     // - extracted using the validateSession middleware fn.
     const userJournals = await JournalModel.findAll({ where: { owner: id } })
-    // ternary is not in modules
-    userJournals.length === 0
-      ? res.status(404).json({ message: 'No entries found' })
-      : res.status(200).json(userJournals)
+    res.status(200).json(userJournals)
   } catch (err) {
     res.status(500).json({ error: err })
   }
@@ -89,10 +86,7 @@ router.get('/:title', async (req, res) => {
     // finding journal's title in title column of db
     // - find's specific title extrapolated from url's parameters
     const results = await JournalModel.findAll({ where: { title: title } })
-    // ternary not in modules
-    results.length === 0
-      ? res.status(404).json({ message: 'No entries found' })
-      : res.status(200).json(results)
+    res.status(200).json(results)
   } catch (err) {
     res.status(500).json({ error: err })
   }
@@ -120,13 +114,10 @@ router.put('/update/:entryId', validateJWT, async (req, res) => {
     // - 1st arg contains obj of the new value we want to edit in the db
     // - 2ns arg tells Sequelize where to place the new data if a match is found (query we crafted above)
     const update = await JournalModel.update(updatedJournal, query)
-    // ternary not in modules
-    update[0] === 0
-      ? res.status(404).json({ message: 'No entries found.' })
-      : res
-          .status(200)
-          // using 'updatedJournal' instead of 'update' so I can see what has been updated
-          .json({ message: 'Your entry has been updated.', updatedJournal })
+    res
+      .status(200)
+      // using 'updatedJournal' instead of 'update' so I can see what has been updated
+      .json({ message: 'Your entry has been updated.', updatedJournal })
     // res.status(200).json(update)
   } catch (err) {
     res.status(500).json({ error: err })
@@ -148,12 +139,7 @@ router.delete('/delete/:id', validateJWT, async (req, res) => {
     // tell Sequelize what to look for in trying to find item to delete
     // modules did not set await JournalModel to a variable
     const result = await JournalModel.destroy(query)
-    // ternary not in modules
-    query[0] === 0
-      ? res.status(404).json({ message: 'No entries found.' })
-      : res
-          .status(200)
-          .json({ message: 'Your entry has been deleted.', result })
+    res.status(200).json({ message: 'Your entry has been deleted.', result })
   } catch (err) {
     res.status(500).json({ error: err })
   }
